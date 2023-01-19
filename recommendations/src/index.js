@@ -79,6 +79,70 @@ function setupHandlers(app, db, messageChannel) {
         });
 }
 
+function setupHandlersVideo1(app, db, messageChannel) {
+
+    const historyCollection = db.collection("videos");
+
+    // ... YOU CAN PUT HTTP ROUTES AND OTHER MESSAGE HANDLERS HERE ...
+
+    function consumeViewedMessage(msg) { // Handler for coming messages.
+        const parsedMsg = JSON.parse(msg.content.toString()); // Parse the JSON message.
+        console.log("Received a 'viewed1' message:");
+        console.log(JSON.stringify(parsedMsg, null, 4)); // JUST PRINTING THE RECEIVED MESSAGE.
+
+        // ... ADD YOUR CODE HERE TO PROCESS THE MESSAGE ...
+
+        console.log("Acknowledging message was handled.");
+
+        messageChannel.ack(msg); // If there is no error, acknowledge the message.
+    };
+
+    return messageChannel.assertExchange("viewed1", "fanout") // Assert that we have a "viewed" exchange.
+        .then(() => {
+            return messageChannel.assertQueue("", { exclusive: true }); // Create an anonyous queue.
+        })
+        .then(response => {
+            const queueName = response.queue;
+            console.log(`Created queue ${queueName}, binding it to "viewed1" exchange.`);
+            return messageChannel.bindQueue(queueName, "viewed1", "") // Bind the queue to the exchange.
+                .then(() => {
+                    return messageChannel.consume(queueName, consumeViewedMessage); // Start receiving messages from the anonymous queue.
+                });
+        });
+}
+
+function setupHandlersVideo2(app, db, messageChannel) {
+
+    const historyCollection = db.collection("videos");
+
+    // ... YOU CAN PUT HTTP ROUTES AND OTHER MESSAGE HANDLERS HERE ...
+
+    function consumeViewedMessage(msg) { // Handler for coming messages.
+        const parsedMsg = JSON.parse(msg.content.toString()); // Parse the JSON message.
+        console.log("Received a 'viewed2' message:");
+        console.log(JSON.stringify(parsedMsg, null, 4)); // JUST PRINTING THE RECEIVED MESSAGE.
+
+        // ... ADD YOUR CODE HERE TO PROCESS THE MESSAGE ...
+
+        console.log("Acknowledging message was handled.");
+
+        messageChannel.ack(msg); // If there is no error, acknowledge the message.
+    };
+
+    return messageChannel.assertExchange("viewed2", "fanout") // Assert that we have a "viewed" exchange.
+        .then(() => {
+            return messageChannel.assertQueue("", { exclusive: true }); // Create an anonyous queue.
+        })
+        .then(response => {
+            const queueName = response.queue;
+            console.log(`Created queue ${queueName}, binding it to "viewed2" exchange.`);
+            return messageChannel.bindQueue(queueName, "viewed2", "") // Bind the queue to the exchange.
+                .then(() => {
+                    return messageChannel.consume(queueName, consumeViewedMessage); // Start receiving messages from the anonymous queue.
+                });
+        });
+}
+
 //
 // Start the HTTP server.
 //
@@ -87,6 +151,8 @@ function startHttpServer(db, messageChannel) {
         const app = express();
         app.use(bodyParser.json()); // Enable JSON body for HTTP requests.
         setupHandlers(app, db, messageChannel);
+        setupHandlersVideo1(app, db, messageChannel);
+        setupHandlersVideo2(app, db, messageChannel);
 
         const port = process.env.PORT && parseInt(process.env.PORT) || 3000;
         app.listen(port, () => {
