@@ -32,21 +32,13 @@ function connectRabbit() {
 //
 // Send the "viewed" to the history microservice.
 //
-// function sendViewedMessage(messageChannel, videoPath) {
-//     console.log(`Publishing message on "viewed" exchange.`);
-//
-//     const msg = { videoPath: videoPath };
-//     const jsonMsg = JSON.stringify(msg);
-//
-//     messageChannel.publish("viewed", "", Buffer.from(jsonMsg)); // Publish message to the "viewed" exchange.
-// }
 
 function sendViewedMessage(messageChannel, videoPath, videoId) {
-    console.log(`Publishing message on "viewed" exchange.`);
+    console.log(`Publishing message on "viewed${videoId}" exchange.`);
 
     const msg = { videoPath: videoPath , videoId: videoId};
     const jsonMsg = JSON.stringify(msg);
-    let idMsg = `viewed` ${videoId};
+    let idMsg = `viewed${videoId}`;
 
     messageChannel.publish(idMsg, "", Buffer.from(jsonMsg)); // Publish message to the "viewed" exchange.
 }
@@ -56,7 +48,8 @@ function sendViewedMessage(messageChannel, videoPath, videoId) {
 //
 function setupHandlers(app, messageChannel) {
     app.get("/video", (req, res) => { // Route for streaming video.
-    if (req.query.id === 1) {
+        console.log(req.query.id);
+    if (req.query.id == 1) {
         const videoPath = "./videos/SampleVideo_1280x720_1mb.mp4";
         fs.stat(videoPath, (err, stats) => {
             if (err) {
@@ -75,7 +68,7 @@ function setupHandlers(app, messageChannel) {
             sendViewedMessage(messageChannel, videoPath, 1); // Send message to "history" microservice that this video has been "viewed".
         });
 
-    } else if (req.query.id === 2) {
+    } else if (req.query.id == 2) {
         const videoPath = "./videos/SampleVideo2.mp4";
         fs.stat(videoPath, (err, stats) => {
             if (err) {
@@ -115,29 +108,6 @@ function setupHandlers(app, messageChannel) {
     }
     });
 }
-
-// function setupHandlers(app, messageChannel) {
-//     app.get("/video", (req, res) => { // Route for streaming video.
-//
-//         const videoPath = "./videos/SampleVideo_1280x720_1mb.mp4";
-//         fs.stat(videoPath, (err, stats) => {
-//             if (err) {
-//                 console.error("An error occurred ");
-//                 res.sendStatus(500);
-//                 return;
-//             }
-//
-//             res.writeHead(200, {
-//                 "Content-Length": stats.size,
-//                 "Content-Type": "video/mp4",
-//             });
-//
-//             fs.createReadStream(videoPath).pipe(res);
-//
-//             sendViewedMessage(messageChannel, videoPath); // Send message to "history" microservice that this video has been "viewed".
-//         });
-//     });
-// }
 
 //
 // Start the HTTP server.
