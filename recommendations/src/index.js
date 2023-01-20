@@ -93,6 +93,7 @@ function setupHandlersVideo1(app, db, messageChannel) {
         // ... ADD YOUR CODE HERE TO PROCESS THE MESSAGE ...
 
         console.log("Acknowledging message was handled.");
+        console.log("recommendation video 1");
 
         messageChannel.ack(msg); // If there is no error, acknowledge the message.
     };
@@ -125,6 +126,7 @@ function setupHandlersVideo2(app, db, messageChannel) {
         // ... ADD YOUR CODE HERE TO PROCESS THE MESSAGE ...
 
         console.log("Acknowledging message was handled.");
+        console.log("recommendation video 2");
 
         messageChannel.ack(msg); // If there is no error, acknowledge the message.
     };
